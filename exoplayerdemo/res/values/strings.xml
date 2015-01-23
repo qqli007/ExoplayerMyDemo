@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">exoplayerdemo</string>
+
+    <string name="hello">Hello World, Exoplayer</string>
+    <string name="go">Play</string>
+
+    <string name="failed">Playback failed</string>
+
+
+</resources>
