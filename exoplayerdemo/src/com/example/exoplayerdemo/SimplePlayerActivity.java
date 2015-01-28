@@ -143,12 +143,16 @@ public class SimplePlayerActivity extends Activity implements
         this.callback = null;
         this.videoRenderer = videoRenderer;
         player.prepare(videoRenderer, audioRenderer);
-        maybeStartPlayback();
+        maybeStartPlayback(textureView);
     }
 
-    private void maybeStartPlayback() {
-        Surface surface = surfaceView.getHolder().getSurface();
-        if (videoRenderer == null || surface == null || !surface.isValid()) {
+    private void maybeStartPlayback(TextureView textureView) {
+        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+        if (surfaceTexture == null) {
+            return;
+        }
+        Surface surface = new Surface(surfaceTexture);
+        if (videoRenderer == null || !surface.isValid()) {
             // We're not ready yet.
             return;
         }
@@ -198,7 +202,7 @@ public class SimplePlayerActivity extends Activity implements
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
         Log.d("0-0","----------onSurfaceTextureAvailable");
-        maybeStartPlayback();
+        maybeStartPlayback(textureView);
     }
 
     @Override

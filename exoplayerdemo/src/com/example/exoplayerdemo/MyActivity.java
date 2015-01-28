@@ -27,8 +27,8 @@ public class MyActivity extends Activity {
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                String url = Environment.getExternalStorageDirectory() + "/video.mp4";
-                String url = "http://mvvideo2.meitudata.com/5450886dddd8e2048.mp4";
+                String url = Environment.getExternalStorageDirectory() + "/video.mp4";
+//                String url = "http://mvvideo2.meitudata.com/5450886dddd8e2048.mp4";
 
                 Intent to = new Intent(MyActivity.this, SimplePlayerActivity.class);
                 to.setData(Uri.parse(url));
