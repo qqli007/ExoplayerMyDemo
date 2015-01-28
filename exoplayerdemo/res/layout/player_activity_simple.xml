@@ -19,7 +19,12 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.google.android.exoplayer.VideoSurfaceView android:id="@+id/surface_view"
+  <!--<com.google.android.exoplayer.VideoSurfaceView android:id="@+id/surface_view"-->
+      <!--android:layout_width="match_parent"-->
+      <!--android:layout_height="match_parent"-->
+      <!--android:layout_gravity="center"/>-->
+
+  <com.example.exoplayerdemo.VideoTextureView android:id="@+id/texture_view"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center"/>

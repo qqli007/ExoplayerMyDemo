@@ -2,6 +2,7 @@ package com.example.exoplayerdemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +10,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.TextureView;
 import android.widget.Toast;
 import com.google.android.exoplayer.*;
-import com.google.android.exoplayer.util.PlayerControl;
 
 /**
  * Created by lz on 2015/1/23.
@@ -19,7 +20,9 @@ import com.google.android.exoplayer.util.PlayerControl;
  * DoWhat:
  */
 
-public class SimplePlayerActivity extends Activity implements SurfaceHolder.Callback,
+public class SimplePlayerActivity extends Activity implements
+//        SurfaceHolder.Callback,
+        TextureView.SurfaceTextureListener,
         ExoPlayer.Listener,
         MediaCodecVideoTrackRenderer.EventListener {
 
@@ -35,7 +38,8 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     private RendererBuilderCallback callback;
     private MediaCodecVideoTrackRenderer videoRenderer;
 
-    private VideoSurfaceView surfaceView;
+//    private VideoSurfaceView surfaceView;
+    private VideoTextureView textureView;
     private Handler mainHandler;
 
 
@@ -70,8 +74,12 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     }
 
     private void initView() {
-        surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
-        surfaceView.getHolder().addCallback(this);
+//        surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
+//        surfaceView.getHolder().addCallback(this);
+
+        textureView = (VideoTextureView) findViewById(R.id.texture_view);
+        textureView.setSurfaceTextureListener(this);
+
     }
 
     private void initData() {
@@ -86,7 +94,7 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
         // Setup the player
         player = ExoPlayer.Factory.newInstance(RENDERER_COUNT, 1000, 5000);
         player.addListener(this);
-        player.seekTo(0);
+//        player.seekTo(0);
         // Build the player controls
 //        mediaController.setMediaPlayer(new PlayerControl(player));
 //        mediaController.setEnabled(true);
@@ -166,25 +174,52 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     }
 
     //----------------SurfaceHolder.Callback
+//    @Override
+//    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+//        Log.d("0-0","----------surfaceCreated");
+//        maybeStartPlayback();
+//    }
+//
+//    @Override
+//    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+//        Log.d("0-0","----------surfaceChanged");
+//    }
+//
+//    @Override
+//    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+//        Log.d("0-0","----------surfaceDestroyed");
+//        if (videoRenderer != null) {
+//            player.blockingSendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null);
+//        }
+//
+//    }
+
+    //------------------SurfaceTextureListener
     @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        Log.d("0-0","----------surfaceCreated");
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
+        Log.d("0-0","----------onSurfaceTextureAvailable");
         maybeStartPlayback();
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-        Log.d("0-0","----------surfaceChanged");
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
+        Log.d("0-0","----------onSurfaceTextureSizeChanged");
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        Log.d("0-0","----------surfaceDestroyed");
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        Log.d("0-0","----------onSurfaceTextureDestroyed");
         if (videoRenderer != null) {
             player.blockingSendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null);
         }
-
+        return false;
     }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+        Log.d("0-0","----------onSurfaceTextureUpdated");
+    }
+
 
     //---------------MediaCodecVideoTrackRenderer.EventListener
     @Override
@@ -195,7 +230,7 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     @Override
     public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
         Log.d("0-0","----------onVideoSizeChanged");
-        surfaceView.setVideoWidthHeightRatio(
+        textureView.setVideoWidthHeightRatio(
                 height == 0 ? 1 : (pixelWidthHeightRatio * width) / height);
 
     }
