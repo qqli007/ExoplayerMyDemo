@@ -221,7 +221,7 @@ public class SimplePlayerActivity extends Activity implements
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-        Log.d("0-0","----------onSurfaceTextureUpdated");
+//        Log.d("0-0","----------onSurfaceTextureUpdated");
     }
 
 
@@ -233,7 +233,7 @@ public class SimplePlayerActivity extends Activity implements
 
     @Override
     public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
-        Log.d("0-0","----------onVideoSizeChanged");
+        Log.d("0-0", "----------onVideoSizeChanged width = " + width + "   height = " + height);
         textureView.setVideoWidthHeightRatio(
                 height == 0 ? 1 : (pixelWidthHeightRatio * width) / height);
 

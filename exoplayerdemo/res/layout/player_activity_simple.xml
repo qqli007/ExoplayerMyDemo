@@ -24,7 +24,7 @@
       <!--android:layout_height="match_parent"-->
       <!--android:layout_gravity="center"/>-->
 
-  <com.example.exoplayerdemo.VideoTextureView android:id="@+id/texture_view"
+  <com.example.exoplayerdemo.VideoZoomTextureView android:id="@+id/texture_view"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center"/>
