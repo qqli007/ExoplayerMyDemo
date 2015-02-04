@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.widget.Toast;
 import com.google.android.exoplayer.*;
@@ -21,7 +20,6 @@ import com.google.android.exoplayer.*;
  */
 
 public class SimplePlayerActivity extends Activity implements
-//        SurfaceHolder.Callback,
         TextureView.SurfaceTextureListener,
         ExoPlayer.Listener,
         MediaCodecVideoTrackRenderer.EventListener {
@@ -38,7 +36,6 @@ public class SimplePlayerActivity extends Activity implements
     private RendererBuilderCallback callback;
     private MediaCodecVideoTrackRenderer videoRenderer;
 
-//    private VideoSurfaceView surfaceView;
     private VideoTextureView textureView;
     private Handler mainHandler;
 
@@ -74,8 +71,6 @@ public class SimplePlayerActivity extends Activity implements
     }
 
     private void initView() {
-//        surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
-//        surfaceView.getHolder().addCallback(this);
 
         textureView = (VideoTextureView) findViewById(R.id.texture_view);
         textureView.setSurfaceTextureListener(this);
@@ -177,26 +172,6 @@ public class SimplePlayerActivity extends Activity implements
         finish();
     }
 
-    //----------------SurfaceHolder.Callback
-//    @Override
-//    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-//        Log.d("0-0","----------surfaceCreated");
-//        maybeStartPlayback();
-//    }
-//
-//    @Override
-//    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-//        Log.d("0-0","----------surfaceChanged");
-//    }
-//
-//    @Override
-//    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-//        Log.d("0-0","----------surfaceDestroyed");
-//        if (videoRenderer != null) {
-//            player.blockingSendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null);
-//        }
-//
-//    }
 
     //------------------SurfaceTextureListener
     @Override
