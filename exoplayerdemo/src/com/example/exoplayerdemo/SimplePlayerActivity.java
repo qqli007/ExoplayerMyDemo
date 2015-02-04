@@ -8,8 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Surface;
-import android.view.TextureView;
+import android.view.*;
 import android.widget.Toast;
 import com.google.android.exoplayer.*;
 
@@ -81,6 +80,29 @@ public class SimplePlayerActivity extends Activity implements
         Intent intent = getIntent();
         contentUri = intent.getData();
         contentType = 0;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.player_activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_snapshot:
+                Toast.makeText(SimplePlayerActivity.this, "action_snapshot", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.menu_showimg:
+                Toast.makeText(SimplePlayerActivity.this, "menu_showimg", Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 
     @Override

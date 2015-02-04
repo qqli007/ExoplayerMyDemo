@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        >
+
+    <item
+            android:id="@+id/action_snapshot"
+            android:title="@string/action_snapshot"
+            android:showAsAction="always"/>
+
+    <item
+            android:id="@+id/menu_showimg"
+            android:title="@string/menu_showimg"
+            android:showAsAction="ifRoom"/>
+
+</menu>
