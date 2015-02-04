@@ -94,10 +94,10 @@ public class SimplePlayerActivity extends Activity implements
 
         switch (item.getItemId()) {
             case R.id.action_snapshot:
-                Toast.makeText(SimplePlayerActivity.this, "action_snapshot", Toast.LENGTH_LONG).show();
+                Toast.makeText(SimplePlayerActivity.this, R.string.action_snapshot, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.menu_showimg:
-                Toast.makeText(SimplePlayerActivity.this, "menu_showimg", Toast.LENGTH_LONG).show();
+                Toast.makeText(SimplePlayerActivity.this, R.string.menu_showimg, Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
