@@ -2,7 +2,6 @@ package com.example.exoplayerdemo;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -27,13 +26,11 @@ public class VideoZoomTextureView extends VideoTextureView {
     private OnImageViewTouchDoubleTapListener mDoubleTapListener;
     private OnImageViewTouchSingleTapListener mSingleTapListener;
 
-    protected boolean mUserScaled = false;
 
     protected boolean mDoubleTapEnabled = true;
     protected boolean mScaleEnabled = true;
     protected boolean mScrollEnabled = true;
 
-    protected int mDoubleTapDirection;
 
     public VideoZoomTextureView(Context context) {
         super(context);
@@ -57,8 +54,6 @@ public class VideoZoomTextureView extends VideoTextureView {
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
         mGestureDetector = new GestureDetector(getContext(), mGestureListener, null, true);
 
-        //TODO
-        mDoubleTapDirection = 1;
     }
 
 
@@ -120,8 +115,6 @@ public class VideoZoomTextureView extends VideoTextureView {
     }
 
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//        if (getScaleX(mDisplayMatrix) == 1f) return false;
-        mUserScaled = true;
         scrollBy(-distanceX, -distanceY);
         setTransform(mDisplayMatrix);
         invalidate();
@@ -133,13 +126,7 @@ public class VideoZoomTextureView extends VideoTextureView {
         return true;
     }
 
-
-
     public boolean onUp(MotionEvent e) {
-//        if (getBitmapChanged()) return false;
-//        if (getScale() < getMinScale()) {
-//            zoomTo(getMinScale(), 50);
-//        }
         return true;
     }
 
@@ -163,11 +150,7 @@ public class VideoZoomTextureView extends VideoTextureView {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-//            if (LOG_ENABLED) {
-//                Log.i(LOG_TAG, "onDoubleTap. double tap enabled? " + mDoubleTapEnabled);
-//            }
             if (mDoubleTapEnabled) {
-                mUserScaled = true;
 //                float scale = getScale();
 //                float targetScale = scale;
 //                targetScale = onDoubleTapPost(scale, getMaxScale());
@@ -216,15 +199,12 @@ public class VideoZoomTextureView extends VideoTextureView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float span = detector.getCurrentSpan() - detector.getPreviousSpan();
-            Log.d("0-0", "----------detector.getScaleFactor() = " + detector.getScaleFactor());
             float targetScale = getScaleX(mDisplayMatrix) * detector.getScaleFactor();
 
             if (mScaleEnabled) {
                 if (mScaled && span != 0) {
-                    mUserScaled = true;
                     targetScale = Math.min(getMaxScale(), Math.max(targetScale, getMinScale()));
                     zoomTo(targetScale, detector.getFocusX(), detector.getFocusY());
-                    mDoubleTapDirection = 1;
                     setTransform(mDisplayMatrix);
                     printMatrix(mDisplayMatrix,"onScale");
                     invalidate();

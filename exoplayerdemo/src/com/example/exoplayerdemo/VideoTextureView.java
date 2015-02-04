@@ -25,10 +25,7 @@ public class VideoTextureView extends TextureView {
 
     protected float videoAspectRatio;
     protected int viewWidth, viewHeight;
-    protected float saveScale;
-    float mMinScale, mMaxScale;
-
-    float origWidth, origHeight;
+    protected float mMinScale, mMaxScale;
 
     public VideoTextureView(Context context) {
         super(context);
@@ -91,9 +88,6 @@ public class VideoTextureView extends TextureView {
 
             mBaseMatrix.postTranslate(redundantXSpace, redundantYSpace);
 
-            origWidth = width;
-            origHeight = height;
-
             mDisplayMatrix = mBaseMatrix;
             fixTrans();
             printMatrix(mDisplayMatrix,"onMeasure");
@@ -115,8 +109,8 @@ public class VideoTextureView extends TextureView {
 
     protected void panBy(float dx, float dy) {
 
-        float fixTransX = getFixDragTrans(dx, viewWidth, origWidth * saveScale);
-        float fixTransY = getFixDragTrans(dy, viewHeight, origHeight * saveScale);
+        float fixTransX = getFixDragTrans(dx, viewWidth, viewWidth * getScaleX(mDisplayMatrix));
+        float fixTransY = getFixDragTrans(dy, viewHeight, viewHeight * getScaleY(mDisplayMatrix));
         mDisplayMatrix.postTranslate(fixTransX, fixTransY);
         fixTrans();
 
