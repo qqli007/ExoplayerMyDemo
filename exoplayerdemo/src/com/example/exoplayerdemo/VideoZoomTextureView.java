@@ -217,15 +217,16 @@ public class VideoZoomTextureView extends VideoTextureView {
         public boolean onScale(ScaleGestureDetector detector) {
             float span = detector.getCurrentSpan() - detector.getPreviousSpan();
             Log.d("0-0", "----------detector.getScaleFactor() = " + detector.getScaleFactor());
-            float targetScale = detector.getScaleFactor();
+            float targetScale = getScaleX(mDisplayMatrix) * detector.getScaleFactor();
 
             if (mScaleEnabled) {
                 if (mScaled && span != 0) {
                     mUserScaled = true;
-//                    targetScale = Math.min(getMaxScale(), Math.max(targetScale, getMinScale()));
+                    targetScale = Math.min(getMaxScale(), Math.max(targetScale, getMinScale()));
                     zoomTo(targetScale, detector.getFocusX(), detector.getFocusY());
                     mDoubleTapDirection = 1;
                     setTransform(mDisplayMatrix);
+                    printMatrix(mDisplayMatrix,"onScale");
                     invalidate();
                     return true;
                 }

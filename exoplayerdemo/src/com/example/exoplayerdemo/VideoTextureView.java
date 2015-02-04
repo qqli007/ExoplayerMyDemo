@@ -17,17 +17,17 @@ public class VideoTextureView extends TextureView {
 
     private static final float MAX_ASPECT_RATIO_DEFORMATION_PERCENT = 0.01f;
 
+    private static final int MAX_SCALE_MULTIPE = 4;
+
     protected float[] mMatrixValues = new float[9];
     protected Matrix mDisplayMatrix = new Matrix();
     protected Matrix mBaseMatrix = new Matrix();
 
     protected float videoAspectRatio;
-    protected int videoWidth, videoHeight;
     protected int viewWidth, viewHeight;
     protected float saveScale;
     float mMinScale, mMaxScale;
 
-    int oldMeasuredWidth, oldMeasuredHeight;
     float origWidth, origHeight;
 
     public VideoTextureView(Context context) {
@@ -65,14 +65,6 @@ public class VideoTextureView extends TextureView {
         int width = viewWidth;
         int height = viewHeight;
 
-        //
-        // Rescales image on rotation
-        //
-//        if (oldMeasuredHeight == viewWidth && oldMeasuredHeight == viewHeight
-//                || viewWidth == 0 || viewHeight == 0)
-//            return;
-//        oldMeasuredHeight = viewHeight;
-//        oldMeasuredWidth = viewWidth;
 
         if (videoAspectRatio != 0) {
 
@@ -87,9 +79,8 @@ public class VideoTextureView extends TextureView {
             //Fit to screen.
             float scaleX = (float) width / (float) viewWidth;
             float scaleY = (float) height / (float) viewHeight;
-//            saveScale = 1f;
             mMinScale = scaleX;
-            mMaxScale = scaleX * 4;
+            mMaxScale = scaleX * MAX_SCALE_MULTIPE;
             mBaseMatrix.setScale(scaleX, scaleY);
 
             // Center the image
@@ -105,7 +96,7 @@ public class VideoTextureView extends TextureView {
 
             mDisplayMatrix = mBaseMatrix;
             fixTrans();
-            printMatrix(mDisplayMatrix);
+            printMatrix(mDisplayMatrix,"onMeasure");
             setTransform(mDisplayMatrix);
         }
 
@@ -133,20 +124,16 @@ public class VideoTextureView extends TextureView {
 
 
     protected void zoomTo(float scale, float centerX, float centerY) {
-        float targetScale = scale * getScaleX(mDisplayMatrix);
-        if (targetScale > getMaxScale()) scale = getMaxScale();
-        if (targetScale < getMinScale()) scale = getMinScale();
-
 
         float oldScale = getScaleX(mDisplayMatrix);
         float deltaScale = scale / oldScale;
 
-        if (origWidth * getScaleX(mDisplayMatrix) <= viewWidth || origHeight * getScaleY(mDisplayMatrix) <= viewHeight)
+        if (viewWidth * getScaleX(mDisplayMatrix) <= viewWidth || viewHeight * getScaleY(mDisplayMatrix) <= viewHeight)
             mDisplayMatrix.postScale(deltaScale, deltaScale, viewWidth / 2, viewHeight / 2);
         else
             mDisplayMatrix.postScale(deltaScale, deltaScale, centerX, centerY);
 
-//        fixTrans();
+        fixTrans();
 
     }
 
@@ -173,6 +160,15 @@ public class VideoTextureView extends TextureView {
         Log.d("0-0", "matrix: { x: " + tx + ", y: " + ty + ", scalex: " + scalex + ", scaley: " + scaley + " }");
     }
 
+    public void printMatrix(Matrix matrix,String msg) {
+        float scalex = getValue(matrix, Matrix.MSCALE_X);
+        float scaley = getValue(matrix, Matrix.MSCALE_Y);
+        float tx = getValue(matrix, Matrix.MTRANS_X);
+        float ty = getValue(matrix, Matrix.MTRANS_Y);
+        Log.d("0-0", msg + " -----    matrix: { x: " + tx + ", y: " + ty + ", scalex: " + scalex + ", scaley: " + scaley + " }");
+    }
+
+
 
 
 
@@ -181,8 +177,8 @@ public class VideoTextureView extends TextureView {
         float transX = mMatrixValues[Matrix.MTRANS_X];
         float transY = mMatrixValues[Matrix.MTRANS_Y];
 
-        float fixTransX = getFixTrans(transX, viewWidth, origWidth * saveScale);
-        float fixTransY = getFixTrans(transY, viewHeight, origHeight * saveScale);
+        float fixTransX = getFixTrans(transX, viewWidth, viewWidth * getScaleX(mDisplayMatrix));
+        float fixTransY = getFixTrans(transY, viewHeight, viewHeight * getScaleY(mDisplayMatrix));
 
         if (fixTransX != 0 || fixTransY != 0)
             mDisplayMatrix.postTranslate(fixTransX, fixTransY);
