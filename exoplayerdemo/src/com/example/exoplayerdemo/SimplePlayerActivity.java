@@ -2,6 +2,7 @@ package com.example.exoplayerdemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.net.Uri;
@@ -41,7 +42,7 @@ public class SimplePlayerActivity extends Activity implements
 
     private boolean autoPlay = true;
 
-
+    private boolean snapEnabled = false;
 
 
     /**
@@ -94,6 +95,7 @@ public class SimplePlayerActivity extends Activity implements
 
         switch (item.getItemId()) {
             case R.id.action_snapshot:
+                snapEnabled = true;
                 Toast.makeText(SimplePlayerActivity.this, R.string.action_snapshot, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.menu_showimg:
@@ -194,6 +196,12 @@ public class SimplePlayerActivity extends Activity implements
         finish();
     }
 
+    private void doSyncSnap(){
+        Log.d("0-0","----------doSyncSnap");
+        ImageUtil.doSnapshotSynch(textureView);
+
+    }
+
 
     //------------------SurfaceTextureListener
     @Override
@@ -219,6 +227,10 @@ public class SimplePlayerActivity extends Activity implements
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
 //        Log.d("0-0","----------onSurfaceTextureUpdated");
+        if (snapEnabled) {
+            snapEnabled = false;
+            doSyncSnap();
+        }
     }
 
 
@@ -232,7 +244,7 @@ public class SimplePlayerActivity extends Activity implements
     public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
         Log.d("0-0", "----------onVideoSizeChanged width = " + width + "   height = " + height);
         textureView.setVideoWidthHeightRatio(
-                height == 0 ? 1 : (pixelWidthHeightRatio * width) / height);
+                height == 0 ? 1 : (pixelWidthHeightRatio * width) / height, width, height);
 
     }
 

@@ -4,7 +4,6 @@
 
     <item
             android:id="@+id/action_snapshot"
-            android:action-layout=""
             android:title="@string/action_snapshot"
             android:showAsAction="always"/>
 

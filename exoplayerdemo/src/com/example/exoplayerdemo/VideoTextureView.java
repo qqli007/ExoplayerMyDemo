@@ -23,6 +23,7 @@ public class VideoTextureView extends TextureView {
     protected Matrix mDisplayMatrix = new Matrix();
     protected Matrix mBaseMatrix = new Matrix();
 
+    protected int videoWidth, videoHeight;
     protected float videoAspectRatio;
     protected int viewWidth, viewHeight;
     protected float mMinScale, mMaxScale;
@@ -45,7 +46,9 @@ public class VideoTextureView extends TextureView {
      *
      * @param widthHeightRatio The width to height ratio.
      */
-    public void setVideoWidthHeightRatio(float widthHeightRatio) {
+    public void setVideoWidthHeightRatio(float widthHeightRatio, int width,int height) {
+        videoWidth = width;
+        videoHeight = height;
         if (this.videoAspectRatio != widthHeightRatio) {
             this.videoAspectRatio = widthHeightRatio;
             requestLayout();
