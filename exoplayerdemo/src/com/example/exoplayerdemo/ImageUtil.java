@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +22,10 @@ import java.util.Date;
 
 public class ImageUtil {
 
-    public static void doSnapshotSynch (VideoTextureView textureView) {
+    public static final int SNAPSHOT_SUCCESS = 1;
+    public static final int SNAPSHOT_FAILED = -1;
+
+    public static void doSnapshot (Bitmap bitmap) {
         Date now = new Date();
         SimpleDateFormat dateFormater = new SimpleDateFormat(
                 "yyyy-MM-dd");
@@ -32,10 +37,11 @@ public class ImageUtil {
                 + "/Download/"
                 + "/" + date + "/" + time + ".jpg";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Bitmap bitmap = textureView.getBitmap(textureView.videoWidth, textureView.videoHeight);
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100,baos);
-        saveBitmapToSDcard(baos.toByteArray(), new File(filePath));
-        ImageUtil.mediaScan("file://" + filePath);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        int result = saveBitmapToSDcard(baos.toByteArray(), new File(filePath));
+        if (result == SNAPSHOT_SUCCESS) {
+            ImageUtil.mediaScan("file://" + filePath);
+        }
     }
 
 
@@ -61,7 +67,7 @@ public class ImageUtil {
                         if (savePath.exists()) {
                             savePath.delete();
                         }
-                        return -1;
+                        return SNAPSHOT_FAILED;
                     }
                     fos.write(data);
                     fos.flush();
@@ -71,17 +77,17 @@ public class ImageUtil {
                     if (savePath.exists()) {
                         savePath.delete();
                     }
-                    return -1;
+                    return SNAPSHOT_FAILED;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 if (savePath.exists()) {
                     savePath.delete();
                 }
-                return -1;
+                return SNAPSHOT_FAILED;
             }
         } else {
-            return -1;
+            return SNAPSHOT_FAILED;
         }
         return 1;
     }
@@ -95,6 +101,7 @@ public class ImageUtil {
             Uri uri = Uri.parse(path);
             AppContext.getAppContext().sendBroadcast(new Intent(
                     Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+            Toast.makeText(AppContext.getAppContext(), "File saved:" + path, Toast.LENGTH_SHORT).show();
         }
         catch (Exception e)
         {

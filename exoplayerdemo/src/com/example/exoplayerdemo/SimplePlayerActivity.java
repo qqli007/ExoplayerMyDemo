@@ -96,7 +96,6 @@ public class SimplePlayerActivity extends Activity implements
         switch (item.getItemId()) {
             case R.id.action_snapshot:
                 snapEnabled = true;
-                Toast.makeText(SimplePlayerActivity.this, R.string.action_snapshot, Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.menu_showimg:
                 Toast.makeText(SimplePlayerActivity.this, R.string.menu_showimg, Toast.LENGTH_SHORT).show();
@@ -196,9 +195,12 @@ public class SimplePlayerActivity extends Activity implements
         finish();
     }
 
-    private void doSyncSnap(){
-        Log.d("0-0","----------doSyncSnap");
-        ImageUtil.doSnapshotSynch(textureView);
+    private void doSnapshot(Bitmap bitmap){
+        Log.d("0-0","----------doSnapshot");
+        if (bitmap == null) {
+            return;
+        }
+        ImageUtil.doSnapshot(bitmap);
 
     }
 
@@ -226,10 +228,10 @@ public class SimplePlayerActivity extends Activity implements
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-//        Log.d("0-0","----------onSurfaceTextureUpdated");
         if (snapEnabled) {
             snapEnabled = false;
-            doSyncSnap();
+            Bitmap bitmap = textureView.getBitmap(textureView.videoWidth, textureView.videoHeight);
+            doSnapshot(bitmap);
         }
     }
 
@@ -262,6 +264,7 @@ public class SimplePlayerActivity extends Activity implements
     public void onCryptoError(MediaCodec.CryptoException e) {
         Log.d("0-0","----------onCryptoError");
     }
+
 
     //---------exoplayer listener
     @Override
