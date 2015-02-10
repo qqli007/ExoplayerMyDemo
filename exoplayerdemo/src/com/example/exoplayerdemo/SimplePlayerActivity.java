@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.Drawable;
 import android.media.MediaCodec;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.*;
+import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.android.exoplayer.*;
 
@@ -39,10 +42,12 @@ public class SimplePlayerActivity extends Activity implements
     private VideoTextureView textureView;
     private Handler mainHandler;
 
+    private ImageView show_img_view;
 
     private boolean autoPlay = true;
 
     private boolean snapEnabled = false;
+    private boolean isShowImage = true;
 
 
     /**
@@ -74,6 +79,7 @@ public class SimplePlayerActivity extends Activity implements
 
         textureView = (VideoTextureView) findViewById(R.id.texture_view);
         textureView.setSurfaceTextureListener(this);
+        show_img_view = (ImageView) findViewById(R.id.show_img_view);
 
     }
 
@@ -81,6 +87,22 @@ public class SimplePlayerActivity extends Activity implements
         Intent intent = getIntent();
         contentUri = intent.getData();
         contentType = 0;
+    }
+
+    private void setActivityBgColor() {
+        TypedValue a = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+        if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            // windowBackground is a color,do nothing
+            int color = a.data;
+        }
+        else {
+            // windowBackground is not a color, probably a drawable
+            Drawable d = getResources().getDrawable(a.resourceId);
+            d.setAlpha(255);
+            show_img_view.setBackground(d);
+        }
+
     }
 
     @Override
@@ -98,7 +120,15 @@ public class SimplePlayerActivity extends Activity implements
                 snapEnabled = true;
                 return true;
             case R.id.menu_showimg:
-                Toast.makeText(SimplePlayerActivity.this, R.string.menu_showimg, Toast.LENGTH_SHORT).show();
+                if (isShowImage) {
+                    isShowImage = false;
+                    item.setTitle(R.string.menu_close_img_view);
+                    show_img_view.setVisibility(View.VISIBLE);
+                } else {
+                    isShowImage = true;
+                    item.setTitle(R.string.menu_show_img_view);
+                    show_img_view.setVisibility(View.GONE);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -232,6 +262,10 @@ public class SimplePlayerActivity extends Activity implements
             snapEnabled = false;
             Bitmap bitmap = textureView.getBitmap(textureView.videoWidth, textureView.videoHeight);
             doSnapshot(bitmap);
+            if (View.VISIBLE == show_img_view.getVisibility()) {
+                setActivityBgColor();
+                show_img_view.setImageBitmap(bitmap);
+            }
         }
     }
 

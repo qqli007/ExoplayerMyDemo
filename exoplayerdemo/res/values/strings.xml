@@ -9,6 +9,8 @@
 
     <string name="action_snapshot">Snapshot</string>
     <string name="menu_showimg">ShowImages</string>
+    <string name="menu_show_img_view">Show Image View</string>
+    <string name="menu_close_img_view">Close Image View</string>
 
 
 </resources>
