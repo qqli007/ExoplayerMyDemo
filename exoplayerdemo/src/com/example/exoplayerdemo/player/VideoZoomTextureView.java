@@ -2,6 +2,7 @@ package com.example.exoplayerdemo.player;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -10,7 +11,7 @@ import android.view.ScaleGestureDetector;
  * Created by lz on 2015/1/29.
  * <p/>
  * DoWhat:
- *
+ * <p/>
  * refer to --- https://github.com/sephiroth74/ImageViewZoom
  */
 
@@ -47,7 +48,7 @@ public class VideoZoomTextureView extends VideoTextureView {
         init();
     }
 
-    private void init(){
+    private void init() {
         mGestureListener = getGestureListener();
         mScaleListener = getScaleListener();
 
@@ -91,13 +92,11 @@ public class VideoZoomTextureView extends VideoTextureView {
     }
 
 
-
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mScaleDetector.onTouchEvent(event);
 
-        if (! mScaleDetector.isInProgress()) {
+        if (!mScaleDetector.isInProgress()) {
             mGestureDetector.onTouchEvent(event);
         }
 
@@ -127,6 +126,9 @@ public class VideoZoomTextureView extends VideoTextureView {
     }
 
     public boolean onUp(MotionEvent e) {
+        if (getScaleX(mDisplayMatrix) < getMinScale()) {
+            zoomTo(getMinScale(), 50);
+        }
         return true;
     }
 
@@ -134,6 +136,15 @@ public class VideoZoomTextureView extends VideoTextureView {
         return true;
     }
 
+
+    @Override
+    protected void onZoomAnimationCompleted(float scale) {
+        if (scale != getMinScale()) {
+            zoomTo(getMinScale(), 0, 0);
+            setTransform(mDisplayMatrix);
+            invalidate();
+        }
+    }
 
 
     public class GestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -170,7 +181,7 @@ public class VideoZoomTextureView extends VideoTextureView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
-            if (! mScrollEnabled) return false;
+            if (!mScrollEnabled) return false;
             if (e1 == null || e2 == null) return false;
             if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) return false;
             if (mScaleDetector.isInProgress()) return false;
@@ -190,8 +201,6 @@ public class VideoZoomTextureView extends VideoTextureView {
     }
 
 
-
-
     public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         protected boolean mScaled = false;
@@ -203,17 +212,16 @@ public class VideoZoomTextureView extends VideoTextureView {
 
             if (mScaleEnabled) {
                 if (mScaled && span != 0) {
-                    targetScale = Math.min(getMaxScale(), Math.max(targetScale, getMinScale()));
+                    targetScale = Math.min(getMaxScale(), Math.max(targetScale, getMinScale() - 0.1f));
                     zoomTo(targetScale, detector.getFocusX(), detector.getFocusY());
                     setTransform(mDisplayMatrix);
-                    printMatrix(mDisplayMatrix,"onScale");
                     invalidate();
                     return true;
                 }
 
                 // This is to prevent a glitch the first time
                 // image is scaled.
-                if (! mScaled) mScaled = true;
+                if (!mScaled) mScaled = true;
             }
             return true;
         }
@@ -230,10 +238,6 @@ public class VideoZoomTextureView extends VideoTextureView {
 
         void onSingleTapConfirmed();
     }
-
-
-
-
 
 
 }

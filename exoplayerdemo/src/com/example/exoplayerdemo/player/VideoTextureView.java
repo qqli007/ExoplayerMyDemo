@@ -2,9 +2,12 @@ package com.example.exoplayerdemo.player;
 
 import android.content.Context;
 import android.graphics.Matrix;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.TextureView;
+import com.example.exoplayerdemo.easing.Cubic;
+import com.example.exoplayerdemo.easing.Easing;
 
 /**
  * Created by lz on 2015/1/28.
@@ -22,6 +25,9 @@ public class VideoTextureView extends TextureView {
     protected float[] mMatrixValues = new float[9];
     protected Matrix mDisplayMatrix = new Matrix();
     protected Matrix mBaseMatrix = new Matrix();
+
+    protected Handler mHandler = new Handler();
+    protected Easing mEasing = new Cubic();
 
     public int videoWidth;
     public int videoHeight;
@@ -47,7 +53,7 @@ public class VideoTextureView extends TextureView {
      *
      * @param widthHeightRatio The width to height ratio.
      */
-    public void setVideoWidthHeightRatio(float widthHeightRatio, int width,int height) {
+    public void setVideoWidthHeightRatio(float widthHeightRatio, int width, int height) {
         videoWidth = width;
         videoHeight = height;
         if (this.videoAspectRatio != widthHeightRatio) {
@@ -59,7 +65,7 @@ public class VideoTextureView extends TextureView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.d("0-0","----------onMeasure");
+        Log.d("0-0", "----------onMeasure");
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         viewWidth = getMeasuredWidth();
         viewHeight = getMeasuredHeight();
@@ -85,8 +91,8 @@ public class VideoTextureView extends TextureView {
             mBaseMatrix.setScale(scaleX, scaleY);
 
             // Center the image
-            float redundantYSpace = (float) viewHeight -  height;
-            float redundantXSpace = (float) viewWidth -  width;
+            float redundantYSpace = (float) viewHeight - height;
+            float redundantXSpace = (float) viewWidth - width;
             redundantYSpace /= (float) 2;
             redundantXSpace /= (float) 2;
 
@@ -94,7 +100,6 @@ public class VideoTextureView extends TextureView {
 
             mDisplayMatrix = mBaseMatrix;
             fixTrans();
-//            printMatrix(mDisplayMatrix,"onMeasure");
             setTransform(mDisplayMatrix);
         }
 
@@ -135,6 +140,42 @@ public class VideoTextureView extends TextureView {
 
     }
 
+    protected void zoomTo(final float scale, final float durationMs) {
+
+        final long startTime = System.currentTimeMillis();
+
+        final float oldScale = getScaleX(mDisplayMatrix);
+        final float deltaScale = scale - oldScale;
+
+        if (viewWidth * getScaleX(mDisplayMatrix) <= viewWidth || viewHeight * getScaleY(mDisplayMatrix) <= viewHeight) {
+            mHandler.post(
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            long now = System.currentTimeMillis();
+                            float currentMs = Math.min(durationMs, now - startTime);
+                            float newScale = (float) mEasing.easeInOut(currentMs, 0, deltaScale, durationMs);
+                            float destScale = oldScale + newScale;
+                            if (destScale > scale) {
+                                destScale = scale;
+                            }
+                            zoomTo(destScale, viewWidth / 2, viewHeight / 2);
+                            setTransform(mDisplayMatrix);
+                            invalidate();
+                            if (currentMs < durationMs) {
+                                mHandler.post(this);
+                            } else {
+                                onZoomAnimationCompleted(getScaleX(mDisplayMatrix));
+                            }
+                        }
+                    }
+            );
+
+        }
+
+
+    }
 
 
     protected float getScaleX(Matrix matrix) {
@@ -150,6 +191,9 @@ public class VideoTextureView extends TextureView {
         return mMatrixValues[whichValue];
     }
 
+    protected void onZoomAnimationCompleted(float scale) {
+    }
+
     public void printMatrix(Matrix matrix) {
         float scalex = getValue(matrix, Matrix.MSCALE_X);
         float scaley = getValue(matrix, Matrix.MSCALE_Y);
@@ -158,16 +202,13 @@ public class VideoTextureView extends TextureView {
         Log.d("0-0", "matrix: { x: " + tx + ", y: " + ty + ", scalex: " + scalex + ", scaley: " + scaley + " }");
     }
 
-    public void printMatrix(Matrix matrix,String msg) {
+    public void printMatrix(Matrix matrix, String msg) {
         float scalex = getValue(matrix, Matrix.MSCALE_X);
         float scaley = getValue(matrix, Matrix.MSCALE_Y);
         float tx = getValue(matrix, Matrix.MTRANS_X);
         float ty = getValue(matrix, Matrix.MTRANS_Y);
         Log.d("0-0", msg + " -----    matrix: { x: " + tx + ", y: " + ty + ", scalex: " + scalex + ", scaley: " + scaley + " }");
     }
-
-
-
 
 
     void fixTrans() {
