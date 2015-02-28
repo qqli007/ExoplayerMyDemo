@@ -1,4 +1,4 @@
-package com.example.exoplayerdemo;
+package com.example.exoplayerdemo.player;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -23,7 +23,8 @@ public class VideoTextureView extends TextureView {
     protected Matrix mDisplayMatrix = new Matrix();
     protected Matrix mBaseMatrix = new Matrix();
 
-    protected int videoWidth, videoHeight;
+    public int videoWidth;
+    public int videoHeight;
     protected float videoAspectRatio;
     protected int viewWidth, viewHeight;
     protected float mMinScale, mMaxScale;
@@ -93,7 +94,7 @@ public class VideoTextureView extends TextureView {
 
             mDisplayMatrix = mBaseMatrix;
             fixTrans();
-            printMatrix(mDisplayMatrix,"onMeasure");
+//            printMatrix(mDisplayMatrix,"onMeasure");
             setTransform(mDisplayMatrix);
         }
 

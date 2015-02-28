@@ -5,15 +5,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
-import android.media.MediaCodec;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.ImageView;
-import android.widget.Toast;
+import com.example.exoplayerdemo.player.DefaultRendererBuilder;
+import com.example.exoplayerdemo.player.DemoPlayer;
+import com.example.exoplayerdemo.player.VideoTextureView;
+import com.example.exoplayerdemo.player.DemoPlayer.RendererBuilder;
+import com.example.exoplayerdemo.util.ImageUtil;
 import com.google.android.exoplayer.*;
 
 /**
@@ -24,51 +26,30 @@ import com.google.android.exoplayer.*;
 
 public class SimplePlayerActivity extends Activity implements
         TextureView.SurfaceTextureListener,
-        ExoPlayer.Listener,
-        MediaCodecVideoTrackRenderer.EventListener {
+        DemoPlayer.Listener,
+        DemoPlayer.TextListener {
 
     private static final String TAG = "SimplePlayerActivity";
-
-    public static final int RENDERER_COUNT = 2;
 
     private Uri contentUri;
     private int contentType;
 
-    private ExoPlayer player;
-    private RendererBuilder builder;
-    private RendererBuilderCallback callback;
-    private MediaCodecVideoTrackRenderer videoRenderer;
+    private DemoPlayer player;
 
     private VideoTextureView textureView;
-    private Handler mainHandler;
-
     private ImageView show_img_view;
 
-    private boolean autoPlay = true;
+    private boolean playerNeedsPrepare;
 
     private boolean snapEnabled = false;
     private boolean isShowImage = true;
-
-
-    /**
-     * Builds renderers for the player.
-     */
-    public interface RendererBuilder {
-
-        void buildRenderers(RendererBuilderCallback callback);
-
-    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         initData();
-
-        mainHandler = new Handler(getMainLooper());
-        builder = getRendererBuilder();
 
         setContentView(R.layout.player_activity_simple);
         initView();
@@ -95,8 +76,7 @@ public class SimplePlayerActivity extends Activity implements
         if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
             // windowBackground is a color,do nothing
             int color = a.data;
-        }
-        else {
+        } else {
             // windowBackground is not a color, probably a drawable
             Drawable d = getResources().getDrawable(a.resourceId);
             d.setAlpha(255);
@@ -139,94 +119,98 @@ public class SimplePlayerActivity extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
-        // Setup the player
-        player = ExoPlayer.Factory.newInstance(RENDERER_COUNT, 1000, 5000);
-        player.addListener(this);
-//        player.seekTo(0);
-        // Build the player controls
-//        mediaController.setMediaPlayer(new PlayerControl(player));
-//        mediaController.setEnabled(true);
-        // Request the renderers
-        callback = new RendererBuilderCallback();
-        builder.buildRenderers(callback);
+        preparePlayer();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Release the player
+    private void preparePlayer() {
+        Log.d("0-0","----------preparePlayer");
+        if (player == null) {
+            player = new DemoPlayer(getRendererBuilder());
+            player.addListener(this);
+            player.setTextListener(this);
+            playerNeedsPrepare = true;
+        }
+        if (playerNeedsPrepare) {
+            player.prepare();
+            playerNeedsPrepare = false;
+        }
+        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+        if (surfaceTexture != null && player.getSurface() == null) {
+            player.setSurface(new Surface(surfaceTexture));
+        }
+        player.setPlayWhenReady(true);
+    }
+
+
+    private void releasePlayer() {
+        Log.d("0-0","----------releasePlayer");
         if (player != null) {
             player.release();
             player = null;
         }
-        callback = null;
-        videoRenderer = null;
     }
 
-    public Handler getMainHandler() {
-        return mainHandler;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releasePlayer();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releasePlayer();
     }
 
 
     private RendererBuilder getRendererBuilder() {
-//        String userAgent = DemoUtil.getUserAgent(this);
         switch (contentType) {
-//            case DemoUtil.TYPE_SS:
-//                return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
-//                        contentId);
-//            case DemoUtil.TYPE_DASH:
-//                return new DashRendererBuilder(this, userAgent, contentUri.toString(), contentId);
             default:
-                return new DefaultRendererBuilder(this, contentUri);
-//                return new SmoothStreamingRendererBuilder(this, "", contentUri.toString(), "");
+                return new DefaultRendererBuilder(this, contentUri, null);
         }
     }
 
-
-    private void onRenderers(RendererBuilderCallback callback,
-                             MediaCodecVideoTrackRenderer videoRenderer, MediaCodecAudioTrackRenderer audioRenderer) {
-        if (this.callback != callback) {
-            return;
+    @Override
+    public void onStateChanged(boolean playWhenReady, int playbackState) {
+        String text = "playWhenReady=" + playWhenReady + ", playbackState=";
+        switch (playbackState) {
+            case ExoPlayer.STATE_BUFFERING:
+                text += "buffering";
+                break;
+            case ExoPlayer.STATE_ENDED:
+                text += "ended";
+                break;
+            case ExoPlayer.STATE_IDLE:
+                text += "idle";
+                break;
+            case ExoPlayer.STATE_PREPARING:
+                text += "preparing";
+                break;
+            case ExoPlayer.STATE_READY:
+                text += "ready";
+                break;
+            default:
+                text += "unknown";
+                break;
         }
-        this.callback = null;
-        this.videoRenderer = videoRenderer;
-        player.prepare(videoRenderer, audioRenderer);
-        maybeStartPlayback(textureView);
+        Log.d("0-0", "----------onStateChanged     " + text);
     }
 
-    private void maybeStartPlayback(TextureView textureView) {
-        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
-        if (surfaceTexture == null) {
-            return;
-        }
-        Surface surface = new Surface(surfaceTexture);
-        if (videoRenderer == null || !surface.isValid()) {
-            // We're not ready yet.
-            return;
-        }
-        player.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
-        if (autoPlay) {
-            player.setPlayWhenReady(true);
-            autoPlay = false;
-        }
+    @Override
+    public void onError(Exception e) {
+        e.printStackTrace();
+        playerNeedsPrepare = true;
     }
 
-    private void onRenderersError(RendererBuilderCallback callback, Exception e) {
-        if (this.callback != callback) {
-            return;
-        }
-        this.callback = null;
-        onError(e);
+    @Override
+    public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
+        textureView.setVideoWidthHeightRatio(
+                height == 0 ? 1 : (width * pixelWidthAspectRatio) / height, width, height);
     }
 
-    private void onError(Exception e) {
-        Log.e(TAG, "Playback failed", e);
-        Toast.makeText(this, R.string.failed, Toast.LENGTH_SHORT).show();
-        finish();
-    }
-
-    private void doSnapshot(Bitmap bitmap){
-        Log.d("0-0","----------doSnapshot");
+    private void doSnapshot(Bitmap bitmap) {
+        Log.d("0-0", "----------doSnapshot");
         if (bitmap == null) {
             return;
         }
@@ -238,20 +222,23 @@ public class SimplePlayerActivity extends Activity implements
     //------------------SurfaceTextureListener
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
-        Log.d("0-0","----------onSurfaceTextureAvailable");
-        maybeStartPlayback(textureView);
+        Log.d("0-0", "----------onSurfaceTextureAvailable");
+        if (player != null && player.getSurface() == null) {
+            player.setSurface(new Surface(surfaceTexture));
+        }
+
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
-        Log.d("0-0","----------onSurfaceTextureSizeChanged");
+        Log.d("0-0", "----------onSurfaceTextureSizeChanged");
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        Log.d("0-0","----------onSurfaceTextureDestroyed");
-        if (videoRenderer != null) {
-            player.blockingSendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null);
+        Log.d("0-0", "----------onSurfaceTextureDestroyed");
+        if (player != null) {
+            player.blockingClearSurface();
         }
         return false;
     }
@@ -270,65 +257,12 @@ public class SimplePlayerActivity extends Activity implements
     }
 
 
-    //---------------MediaCodecVideoTrackRenderer.EventListener
     @Override
-    public void onDroppedFrames(int i, long l) {
-        Log.d("0-0","----------onDroppedFrames");
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
-        Log.d("0-0", "----------onVideoSizeChanged width = " + width + "   height = " + height);
-        textureView.setVideoWidthHeightRatio(
-                height == 0 ? 1 : (pixelWidthHeightRatio * width) / height, width, height);
+    public void onText(String text) {
 
     }
 
-    @Override
-    public void onDrawnToSurface(Surface surface) {
-        Log.d("0-0","----------onDrawnToSurface");
-    }
 
-    @Override
-    public void onDecoderInitializationError(MediaCodecTrackRenderer.DecoderInitializationException e) {
-        Log.d("0-0","----------onDecoderInitializationError");
-    }
-
-    @Override
-    public void onCryptoError(MediaCodec.CryptoException e) {
-        Log.d("0-0","----------onCryptoError");
-    }
-
-
-    //---------exoplayer listener
-    @Override
-    public void onPlayerStateChanged(boolean b, int i) {
-        Log.d("0-0","----------onPlayerStateChanged");
-    }
-
-    @Override
-    public void onPlayWhenReadyCommitted() {
-        Log.d("0-0","----------onPlayWhenReadyCommitted");
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException e) {
-        Log.d("0-0","----------onPlayerError");
-    }
-
-
-    /* package */ final class RendererBuilderCallback {
-
-        public void onRenderers(MediaCodecVideoTrackRenderer videoRenderer,
-                                MediaCodecAudioTrackRenderer audioRenderer) {
-            SimplePlayerActivity.this.onRenderers(this, videoRenderer, audioRenderer);
-        }
-
-        public void onRenderersError(Exception e) {
-            SimplePlayerActivity.this.onRenderersError(this, e);
-        }
-
-    }
 
 
 }

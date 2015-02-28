@@ -1,4 +1,4 @@
-package com.example.exoplayerdemo;
+package com.example.exoplayerdemo.player;
 
 import android.content.Context;
 import android.util.AttributeSet;
