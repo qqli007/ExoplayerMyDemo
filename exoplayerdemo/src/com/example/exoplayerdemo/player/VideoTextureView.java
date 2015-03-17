@@ -98,7 +98,7 @@ public class VideoTextureView extends TextureView {
 
             mBaseMatrix.postTranslate(redundantXSpace, redundantYSpace);
 
-            mDisplayMatrix = mBaseMatrix;
+            mDisplayMatrix.set(mBaseMatrix);
             fixTrans();
             setTransform(mDisplayMatrix);
         }
