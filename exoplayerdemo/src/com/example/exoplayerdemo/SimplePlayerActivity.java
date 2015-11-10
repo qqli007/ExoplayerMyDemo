@@ -97,17 +97,6 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
 
     private void initView() {
         View root = findViewById(R.id.root);
-        root.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    toggleControlsVisibility();
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    view.performClick();
-                }
-                return true;
-            }
-        });
         root.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -119,12 +108,25 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
             }
         });
 
-        mediaController = new MediaController(this);
-        mediaController.setAnchorView(root);
-
         videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
         surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+
+        mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoFrame);
         surfaceView.getHolder().addCallback(this);
+
+
+        videoFrame.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    toggleControlsVisibility();
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    view.performClick();
+                }
+                return true;
+            }
+        });
     }
 
     private void initData() {
