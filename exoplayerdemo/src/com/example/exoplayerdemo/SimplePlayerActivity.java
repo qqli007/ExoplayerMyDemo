@@ -8,12 +8,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.MediaController;
 
 import com.example.exoplayerdemo.player.DemoPlayer;
 import com.example.exoplayerdemo.player.ExtractorRendererBuilder;
+import com.example.exoplayerdemo.player.VideoSurfaceView;
 import com.google.android.exoplayer.*;
 import com.google.android.exoplayer.util.Util;
 
@@ -32,57 +33,12 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     private int contentType;
 
     private MediaController mediaController;
-    private AspectRatioFrameLayout videoFrame;
-    private SurfaceView surfaceView;
+    private FrameLayout videoFrame;
+    private VideoSurfaceView surfaceView;
 
     private DemoPlayer player;
     private boolean playerNeedsPrepare;
     private long playerPosition;
-
-
-    @Override
-    public void onStateChanged(boolean playWhenReady, int playbackState) {
-        if (playbackState == ExoPlayer.STATE_ENDED) {
-            showControls();
-        }
-        String text = "playWhenReady=" + playWhenReady + ", playbackState=";
-        switch(playbackState) {
-            case ExoPlayer.STATE_BUFFERING:
-                text += "buffering";
-                break;
-            case ExoPlayer.STATE_ENDED:
-                text += "ended";
-                break;
-            case ExoPlayer.STATE_IDLE:
-                text += "idle";
-                break;
-            case ExoPlayer.STATE_PREPARING:
-                text += "preparing";
-                break;
-            case ExoPlayer.STATE_READY:
-                text += "ready";
-                break;
-            default:
-                text += "unknown";
-                break;
-        }
-        updateButtonVisibilities();
-
-    }
-
-    @Override
-    public void onError(Exception e) {
-        playerNeedsPrepare = true;
-        updateButtonVisibilities();
-        showControls();
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-        videoFrame.setAspectRatio(
-                height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +64,8 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
             }
         });
 
-        videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
-        surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        videoFrame = (FrameLayout) findViewById(R.id.video_frame);
+        surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
 
         mediaController = new MediaController(this);
         mediaController.setAnchorView(videoFrame);
@@ -209,6 +165,52 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
             default:
                 return new ExtractorRendererBuilder(this, userAgent, contentUri);
         }
+    }
+
+    //----------------DemoPlayer.Listener
+    @Override
+    public void onStateChanged(boolean playWhenReady, int playbackState) {
+        if (playbackState == ExoPlayer.STATE_ENDED) {
+            showControls();
+        }
+        String text = "playWhenReady=" + playWhenReady + ", playbackState=";
+        switch(playbackState) {
+            case ExoPlayer.STATE_BUFFERING:
+                text += "buffering";
+                break;
+            case ExoPlayer.STATE_ENDED:
+                text += "ended";
+                break;
+            case ExoPlayer.STATE_IDLE:
+                text += "idle";
+                break;
+            case ExoPlayer.STATE_PREPARING:
+                text += "preparing";
+                break;
+            case ExoPlayer.STATE_READY:
+                text += "ready";
+                break;
+            default:
+                text += "unknown";
+                break;
+        }
+
+        Log.d("0-0", "onStateChanged " + text);
+        updateButtonVisibilities();
+
+    }
+
+    @Override
+    public void onError(Exception e) {
+        playerNeedsPrepare = true;
+        updateButtonVisibilities();
+        showControls();
+    }
+
+    @Override
+    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+        surfaceView.setVideoWidthHeightRatio(
+                height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
     }
 
 
