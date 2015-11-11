@@ -16,30 +16,32 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="240dp"
+    android:background="@color/black"
+    android:layout_centerVertical="true"
     android:keepScreenOn="true">
 
-    <FrameLayout android:id="@+id/video_frame"
-        android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:background="@color/black"
-        android:layout_gravity="center">
+    <!--<FrameLayout android:id="@+id/video_frame"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="240dp"-->
+        <!--android:background="@color/black"-->
+        <!--android:layout_gravity="center">-->
 
-        <com.example.exoplayerdemo.player.VideoSurfaceView android:id="@+id/surface_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"/>
-
-        <!--<View android:id="@+id/shutter"-->
-            <!--android:layout_width="match_parent"-->
+        <!--<com.example.exoplayerdemo.player.VideoSurfaceView android:id="@+id/surface_view"-->
+            <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="match_parent"-->
-            <!--android:background="@android:color/black"/>-->
+            <!--android:layout_gravity="center"/>-->
 
-        <!--<com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"/>-->
+        <!--&lt;!&ndash;<View android:id="@+id/shutter"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:background="@android:color/black"/>&ndash;&gt;-->
 
-    </FrameLayout>
+        <!--&lt;!&ndash;<com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="match_parent"/>&ndash;&gt;-->
+
+    <!--</FrameLayout>-->
 
   <!--<com.google.android.exoplayer.VideoSurfaceView android:id="@+id/surface_view"-->
       <!--android:layout_width="match_parent"-->
