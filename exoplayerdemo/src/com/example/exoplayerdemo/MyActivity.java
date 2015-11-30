@@ -8,10 +8,6 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class MyActivity extends Activity {
 
     private TextView go;
@@ -31,7 +27,7 @@ public class MyActivity extends Activity {
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = Environment.getExternalStorageDirectory() + "/video.mp4";
+                String url = Environment.getExternalStorageDirectory() + "/Download/123.mp4";
 
                 Intent to = new Intent(MyActivity.this, SimplePlayerActivity.class);
                 to.setData(Uri.parse(url));
