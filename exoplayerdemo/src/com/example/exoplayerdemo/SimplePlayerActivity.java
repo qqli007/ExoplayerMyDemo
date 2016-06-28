@@ -11,12 +11,13 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.ImageView;
-import com.example.exoplayerdemo.player.DefaultRendererBuilder;
 import com.example.exoplayerdemo.player.DemoPlayer;
+import com.example.exoplayerdemo.player.ExtractorRendererBuilder;
 import com.example.exoplayerdemo.player.VideoTextureView;
 import com.example.exoplayerdemo.player.DemoPlayer.RendererBuilder;
 import com.example.exoplayerdemo.util.ImageUtil;
 import com.google.android.exoplayer.*;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * Created by lz on 2015/1/23.
@@ -26,8 +27,7 @@ import com.google.android.exoplayer.*;
 
 public class SimplePlayerActivity extends Activity implements
         TextureView.SurfaceTextureListener,
-        DemoPlayer.Listener,
-        DemoPlayer.TextListener {
+        DemoPlayer.Listener{
 
     private static final String TAG = "SimplePlayerActivity";
 
@@ -127,7 +127,6 @@ public class SimplePlayerActivity extends Activity implements
         if (player == null) {
             player = new DemoPlayer(getRendererBuilder());
             player.addListener(this);
-            player.setTextListener(this);
             playerNeedsPrepare = true;
         }
         if (playerNeedsPrepare) {
@@ -165,9 +164,10 @@ public class SimplePlayerActivity extends Activity implements
 
 
     private RendererBuilder getRendererBuilder() {
+        String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
         switch (contentType) {
             default:
-                return new DefaultRendererBuilder(this, contentUri, null);
+                return new ExtractorRendererBuilder(this, userAgent, contentUri);
         }
     }
 
@@ -204,9 +204,9 @@ public class SimplePlayerActivity extends Activity implements
     }
 
     @Override
-    public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
+    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
         textureView.setVideoWidthHeightRatio(
-                height == 0 ? 1 : (width * pixelWidthAspectRatio) / height, width, height);
+                height == 0 ? 1 : (width * pixelWidthHeightRatio) / height, width, height);
     }
 
     private void doSnapshot(Bitmap bitmap) {
@@ -257,10 +257,6 @@ public class SimplePlayerActivity extends Activity implements
     }
 
 
-    @Override
-    public void onText(String text) {
-
-    }
 
 
 
