@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 public class MyActivity extends Activity {
+
+    public static final int RESULT_CODE_COMPRESS_VIDEO = 1;
 
     private TextView go;
 
@@ -27,15 +30,49 @@ public class MyActivity extends Activity {
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = Environment.getExternalStorageDirectory() + "/Download/123.mp4";
-
+                String url = Environment.getExternalStorageDirectory() + "/Download/bbb.flv";
+//                String url = "http://7xl9af.com1.z0.glb.clouddn.com/1bbec9f0c5a8c3b87aa54efc281dc7713657e6a5?e=1462439427&token=8e4YkwOPAwrhUijy7FMfODl6WpNWmF9LiYknl5WH:NPYawxQffkRIVJkGOo7VcbXelyo=";
+                Log.d("0-0", "url=" + url);
                 Intent to = new Intent(MyActivity.this, SimplePlayerActivity.class);
                 to.setData(Uri.parse(url));
                 startActivity(to);
 
             }
         });
+
+        findViewById(R.id.select).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("video/*");
+                startActivityForResult(intent, RESULT_CODE_COMPRESS_VIDEO);
+            }
+        });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == Activity.RESULT_OK && data != null) {
+
+            Uri uri = data.getData();
+
+            if (requestCode == RESULT_CODE_COMPRESS_VIDEO) {
+                if (uri != null) {
+
+                    String path = uri.getPath();
+//                    File file = new File(path);
+//                    tempFile = FileUtils.saveTempFile(file.getName(), this, uri);
+//                  editText.setText(tempFile.getPath());
+
+                    Log.d("0-0", "onActivityResult path = " + path);
+                    Intent to = new Intent(MyActivity.this, SimplePlayerActivity.class);
+                    to.setData(Uri.parse(path));
+                    startActivity(to);
+                }
+            }
+
+        }
+    }
 }
